@@ -30,12 +30,12 @@ public class ElementProcessor implements ConsumerListener {
   public void update(ConsumerRecord record) {
 
     String value = (String) record.value();
-    log.info("ElementListener - received value: {}", value);
+    log.info("ElementProcessor - received value: {}", value);
 
     //Process value
     value += "_P";
 
-    log.info("ElementListener - republish to solver-input");
+    log.info("ElementProcessor - republish to solver-input");
     solverInputProducer.sendMessage(value);
   }
 }

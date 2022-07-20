@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.producer;
 /*
- * 
+ * Copyright(c) Lendlease Corporation, all rights reserved
  */
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,18 +9,19 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SolverInputProducer {
+public class ElementInputProducer {
 
   private KafkaTemplate<String, String> kafkaTemplate;
-  @Value("${kafka.solver-input-topic}")
-  private String SOLVER_INPUT_TOPIC;
+
+  @Value(value = "${kafka.element-input-topic}")
+  private String ELEMENT_INPUT_TOPIC;
 
   @Autowired
-  public SolverInputProducer(KafkaTemplate<String, String> kafkaTemplate) {
+  public ElementInputProducer(KafkaTemplate<String, String> kafkaTemplate) {
     this.kafkaTemplate = kafkaTemplate;
   }
 
   public void sendMessage(String msg){
-    kafkaTemplate.send(SOLVER_INPUT_TOPIC, msg);
+    kafkaTemplate.send(ELEMENT_INPUT_TOPIC, msg);
   }
 }
