@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.streams;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ *
  */
 
 

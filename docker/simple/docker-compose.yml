@@ -41,15 +41,31 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  
-  # Only view, unable to add message
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    restart: "no"
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
     ports:
-      - "9091:9000"
+      - "7474:7474"
+      - "7687:7687"
     environment:
-      KAFKA_BROKERCONNECT: "kafka:29092"
-      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-    depends_on:
-      - "kafka"
+      NEO4J_AUTH: neo4j/password
+      NEO4J_dbms_memory_heap_max__size: 8G
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: 'yes'
+      NEO4J_dbms_directories_import: "/"
+      NEO4JLABS_PLUGINS: '["apoc"]'
+    volumes:
+      - ./neo4j-init-files:/var/lib/neo4j/conf
+  
+  # # Only view, unable to add message
+  # kafdrop:
+  #   image: obsidiandynamics/kafdrop
+  #   restart: "no"
+  #   ports:
+  #     - "9091:9000"
+  #   environment:
+  #     KAFKA_BROKERCONNECT: "kafka:29092"
+  #     JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+  #   depends_on:
+  #     - "kafka"
+
