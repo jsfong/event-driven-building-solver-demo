@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ElementRepository extends Neo4jRepository<Element, Long> {
 
   @Query(value = "MATCH (a:Element),(b:Element)\n" +
-      "WHERE ID(a) = :#{#parent_id} AND ID(b) = :#{#child_id}\n" +
+      "WHERE a.elementId = :#{#parent_element_id} AND b.elementId = :#{#child_element_id}\n" +
       "CREATE (a)-[r:HAS_CHILD]->(b)")
   @Transactional
-  void createHasChildRelationship(@Param("parent_id") Long parent_id, @Param("child_id") Long child_id);
+  void createHasChildRelationship(
+      @Param("parent_element_id") String parent_element_id,
+      @Param("child_element_id") String child_id);
 }

@@ -14,6 +14,6 @@ public class ElementDTO {
 
   private String modelId;
 
-  private Long parentId;
+  private String parentElementId;
 
 }

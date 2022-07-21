@@ -4,11 +4,15 @@ package me.jsfong.modelruntime.api;
  */
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import me.jsfong.modelruntime.model.Element;
 import me.jsfong.modelruntime.model.ElementDTO;
 import me.jsfong.modelruntime.producer.ElementInputProducer;
 import me.jsfong.modelruntime.service.ElementGraphService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
@@ -43,11 +47,33 @@ public class Controller {
     return counts.get(word);
   }
 
+  /**
+   * Create element to element stream
+   * @param elementDTO
+   */
   @PostMapping("/stream/element")
-  public void addElementToElementStream(@RequestBody String msg){
-    elementInputProducer.sendMessage(msg);
+  public void addElementToElementStream(@RequestBody ElementDTO elementDTO)
+      throws JsonProcessingException {
+
+    //TODO to refactor
+    ElementDTO newElement = new ElementDTO();
+    newElement.setElementId(elementDTO.getElementId());
+    newElement.setModelId(elementDTO.getModelId());
+    newElement.setParentElementId(elementDTO.getParentElementId());
+
+    if(StringUtils.isBlank(elementDTO.getElementId())){
+      newElement.setElementId(UUID.randomUUID().toString());
+    }
+
+    ObjectMapper om = new ObjectMapper();
+    elementInputProducer.sendMessage(om.writeValueAsString(newElement));
   }
 
+  /**
+   * Create directly to graph
+   * @param elementDTO
+   * @return
+   */
   @PostMapping("/graph/element")
   public ResponseEntity<ElementDTO> addElementToGraph(@RequestBody ElementDTO elementDTO){
     Element newElement = elementGraphService.createNewElement(elementDTO);

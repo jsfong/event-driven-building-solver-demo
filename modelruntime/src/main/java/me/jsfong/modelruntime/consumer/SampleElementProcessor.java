@@ -1,11 +1,9 @@
-package me.jsfong.modelruntime;
+package me.jsfong.modelruntime.consumer;
 /*
  *
  */
 
 import lombok.extern.slf4j.Slf4j;
-import me.jsfong.modelruntime.consumer.ConsumerListener;
-import me.jsfong.modelruntime.consumer.ElementConsumer;
 import me.jsfong.modelruntime.producer.SolverInputProducer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +11,17 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ElementProcessor implements ConsumerListener {
+public class SampleElementProcessor implements ElementListener {
 
   private SolverInputProducer solverInputProducer;
 
-  private ElementConsumer elementConsumer;
+  private ElementStreamPublisher elementStreamPublisher;
 
   @Autowired
-  public ElementProcessor(SolverInputProducer solverInputProducer, ElementConsumer elementConsumer) {
+  public SampleElementProcessor(SolverInputProducer solverInputProducer, ElementStreamPublisher elementStreamPublisher) {
     this.solverInputProducer = solverInputProducer;
-    this.elementConsumer = elementConsumer;
-    this.elementConsumer.subscribe(this);
+    this.elementStreamPublisher = elementStreamPublisher;
+    this.elementStreamPublisher.subscribe(this);
   }
 
   @Override

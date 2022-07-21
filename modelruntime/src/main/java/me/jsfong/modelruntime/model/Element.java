@@ -23,6 +23,11 @@ import org.springframework.data.neo4j.core.schema.Relationship.Direction;
 @NoArgsConstructor
 public class Element {
 
+  public Element(ElementDTO dto) {
+    this.elementId = dto.getElementId();
+    this.modelId = dto.getModelId();
+  }
+
   @Id
   @GeneratedValue
   private Long id;

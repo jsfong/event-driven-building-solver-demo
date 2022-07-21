@@ -36,14 +36,14 @@ public class ElementGraphServiceImpl implements ElementGraphService {
   @Override
   public Element createNewElement(ElementDTO elementDTO) {
     log.info("ElementGraphService - creatNewElement");
-    Element element = new Element();
-    element.setModelId(elementDTO.getModelId());
-
+    Element element = new Element(elementDTO);
     Element newElement = elementRepository.save(element);
 
-    if(elementDTO.getParentId() != null){
-      elementRepository.createHasChildRelationship(elementDTO.getParentId(), newElement.getId());
+    log.info("ElementGraphService - successfully save");
+
+    if(elementDTO.getParentElementId() != null){
+      elementRepository.createHasChildRelationship(elementDTO.getParentElementId(), newElement.getElementId());
     }
-    return null;
+    return newElement;
   }
 }

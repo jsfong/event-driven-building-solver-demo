@@ -7,15 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ElementConsumer {
+public class ElementStreamPublisher {
 
-  private List<ConsumerListener> listeners = new ArrayList<>();
+  private List<ElementListener> listeners = new ArrayList<>();
 
   //Create multiple KafkaListner is equal to create multiple consumer
 //  @KafkaListener(topics = "element-input", groupId = "element-consumer")
@@ -30,7 +29,7 @@ public class ElementConsumer {
     notifyListener(record);
   }
 
-  public void subscribe(ConsumerListener listener) {
+  public void subscribe(ElementListener listener) {
     this.listeners.add(listener);
   }
 
