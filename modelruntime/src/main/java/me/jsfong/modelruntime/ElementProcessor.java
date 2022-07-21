@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ *
  */
 
 import lombok.extern.slf4j.Slf4j;

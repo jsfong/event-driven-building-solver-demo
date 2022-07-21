@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.producer;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ *
  */
 
 import org.springframework.beans.factory.annotation.Autowired;
