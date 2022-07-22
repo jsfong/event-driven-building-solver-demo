@@ -12,8 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import me.jsfong.solver.consumer.ConsumerListener;
 import me.jsfong.solver.consumer.SolverJobConsumer;
 import me.jsfong.solver.model.ElementDTO;
+import me.jsfong.solver.model.EventStatus;
 import me.jsfong.solver.model.SolverJobConfigDTO;
+import me.jsfong.solver.model.SolverMetricDTO;
+import me.jsfong.solver.model.SolverMetricDTO.SolverMetricDTOBuilder;
 import me.jsfong.solver.producer.ElementProducer;
+import me.jsfong.solver.producer.MetricProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +31,16 @@ public class SolverService implements ConsumerListener {
 
   private final ElementProducer elementProducer;
 
+  private final MetricProducer metricProducer;
+
   private final int STIMULATE_PROCESSING_TIME_MS = 5000;
 
   @Autowired
-  public SolverService(SolverJobConsumer solverJobConsumer, ElementProducer elementProducer) {
+  public SolverService(SolverJobConsumer solverJobConsumer, ElementProducer elementProducer,
+      MetricProducer metricProducer) {
     this.solverJobConsumer = solverJobConsumer;
     this.elementProducer = elementProducer;
+    this.metricProducer = metricProducer;
     this.solverJobConsumer.subscribe(this);
   }
 
@@ -51,7 +59,15 @@ public class SolverService implements ConsumerListener {
       ObjectMapper om = new ObjectMapper();
       var solverJobConfigDTO = om.readValue(value, SolverJobConfigDTO.class);
 
-      //Stimulate processing time by sleep
+      //Send metric
+      var metric = SolverMetricDTO.builder()
+          .modelId(solverJobConfigDTO.getModelId())
+          .solverType(solverJobConfigDTO.getType())
+          .status(EventStatus.SOLVING).build();
+      metricProducer.sendMessage(om.writeValueAsString(metric));
+
+
+      //Solving
       long t = System.currentTimeMillis();
       long end = t + STIMULATE_PROCESSING_TIME_MS;
       while (System.currentTimeMillis() < end) {
@@ -61,6 +77,13 @@ public class SolverService implements ConsumerListener {
       }
       log.info("SolverService - [{}] Stimulated DONE solving ",
           solverJobConfigDTO.getType().toString());
+
+      //Send metric
+      metric = SolverMetricDTO.builder()
+          .modelId(solverJobConfigDTO.getModelId())
+          .solverType(solverJobConfigDTO.getType())
+          .status(EventStatus.DONE).build();
+      metricProducer.sendMessage(om.writeValueAsString(metric));
 
       //Generate output
       List<ElementDTO> elementDTOS = processAndOutputSolverResult(solverJobConfigDTO);

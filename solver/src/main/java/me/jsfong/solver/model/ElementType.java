@@ -1,5 +1,5 @@
 package me.jsfong.solver.model;
 
 public enum ElementType {
-  INPUT, SITE, BUILDING, LEVEL, ROOM, AREA;
+  NONE, INPUT, SITE, BUILDING, LEVEL, ROOM, AREA;
 }

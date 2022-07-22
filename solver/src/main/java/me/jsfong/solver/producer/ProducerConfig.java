@@ -45,4 +45,24 @@ public class ProducerConfig {
   public KafkaTemplate<String, String> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());
   }
+
+  @Bean
+  public ProducerFactory<String, String> metricProducerFactory() {
+    Map<String, Object> configProps = new HashMap<>();
+    configProps.put(BOOTSTRAP_SERVERS_CONFIG, BOOT_STRAP_SERVERS);
+    configProps.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    // producer acks
+//    configProps.put(ACKS_CONFIG,"all");
+//    configProps.put(RETRIES_CONFIG, 3);
+    configProps.put(LINGER_MS_CONFIG, "1");
+//    configProps.put(ENABLE_IDEMPOTENCE_CONFIG, "true");  // ensure we don't push duplicates
+
+    return new DefaultKafkaProducerFactory<>(configProps);
+  }
+
+  @Bean
+  public KafkaTemplate<String, String> metricProducerTemplate() {
+    return new KafkaTemplate<>(producerFactory());
+  }
 }
