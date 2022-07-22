@@ -60,7 +60,7 @@ public class Element {
             parentElement.stream().map(Element::getElementId).collect(Collectors.toList()))
         .childElementId(
             childElement.stream().map(Element::getElementId).collect(Collectors.toList()))
-        .type(this.type.get(0))
+        .type(ElementType.valueOf(this.type.get(0).toUpperCase()))
         .watermarks(this.watermarks)
         .values(this.values)
         .parentElementId(new ArrayList<>(this.parentElementId))

@@ -6,7 +6,6 @@ package me.jsfong.modelruntime.streams;
 
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
-import me.jsfong.modelruntime.config.StreamConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;

@@ -1,0 +1,31 @@
+package me.jsfong.modelruntime.model;
+/*
+ * Copyright(c) Lendlease Corporation, all rights reserved
+ */
+
+import java.util.List;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+
+@Node("JobConfig")
+@Getter
+@Setter
+@Builder
+public class SolverJobConfig {
+  @Id
+  @GeneratedValue
+  private Long id;
+
+  private String configId;
+
+  private List<String> type;
+
+  private String causeByElementId;
+
+  private String values;
+
+}

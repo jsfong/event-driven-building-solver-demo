@@ -32,7 +32,7 @@ public class ElementDTO {
   private List<String> childElementId = new ArrayList<>();
 
   @Builder.Default
-  private String type = "";
+  private ElementType type = ElementType.INPUT;
   @Builder.Default
   private String watermarks = "";
 
@@ -53,7 +53,7 @@ public class ElementDTO {
 
   public Element toElement() {
     return Element.builder()
-        .type(List.of(this.type))
+        .type(List.of(this.type.toString()))
         .elementId(this.elementId)
         .modelId(this.modelId)
         .watermarks(this.watermarks)

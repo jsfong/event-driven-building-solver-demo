@@ -1,4 +1,4 @@
-package me.jsfong.modelruntime.consumer;
+package me.jsfong.modelruntime.service;
 /*
  * Copyright(c) Lendlease Corporation, all rights reserved
  */
@@ -6,26 +6,27 @@ package me.jsfong.modelruntime.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import me.jsfong.modelruntime.consumer.ElementListener;
+import me.jsfong.modelruntime.consumer.ElementConsumer;
 import me.jsfong.modelruntime.model.ElementDTO;
-import me.jsfong.modelruntime.service.ElementGraphService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ElementSink  implements ElementListener {
+public class ElementSinkService implements ElementListener {
 
   private ElementGraphService elementGraphService;
 
-  private ElementStreamPublisher elementStreamPublisher;
+  private ElementConsumer elementConsumer;
 
   @Autowired
-  public ElementSink(ElementGraphService elementGraphService,
-      ElementStreamPublisher elementStreamPublisher) {
+  public ElementSinkService(ElementGraphService elementGraphService,
+      ElementConsumer elementConsumer) {
     this.elementGraphService = elementGraphService;
-    this.elementStreamPublisher = elementStreamPublisher;
-    this.elementStreamPublisher.subscribe(this);
+    this.elementConsumer = elementConsumer;
+    this.elementConsumer.subscribe(this);
   }
 
   @Override
