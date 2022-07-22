@@ -1,4 +1,4 @@
-package me.jsfong.modelruntime.consumer;
+package me.jsfong.solver.consumer;
 /*
  *
  */
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ElementConsumer {
+public class SolverJobConsumer {
 
-  private List<ElementListener> listeners = new ArrayList<>();
+  private List<ConsumerListener> listeners = new ArrayList<>();
 
   //Create multiple KafkaListner is equal to create multiple consumer
 //  @KafkaListener(topics = "element-input", groupId = "element-consumer")
@@ -22,14 +22,14 @@ public class ElementConsumer {
 //    log.info("Value: {}", message);
 //  }
 
-  @KafkaListener(topics = "${kafka.element-input-topic}", groupId = "model-runtime-element-consumer")
+  @KafkaListener(topics = "${kafka.solver-input-topic}", groupId = "solver-job-consumer")
   public void consumerElementRecord(ConsumerRecord<String, String> record) {
     log.info("Key: {}, Value: {}", record.key(), record.value());
     log.info("Partition: {}, Offset: {}", record.partition(), record.offset());
     notifyListener(record);
   }
 
-  public void subscribe(ElementListener listener) {
+  public void subscribe(ConsumerListener listener) {
     this.listeners.add(listener);
   }
 

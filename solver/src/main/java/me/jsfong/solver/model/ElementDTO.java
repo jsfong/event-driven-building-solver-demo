@@ -1,12 +1,10 @@
-package me.jsfong.modelruntime.model;
+package me.jsfong.solver.model;
 /*
  * 
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

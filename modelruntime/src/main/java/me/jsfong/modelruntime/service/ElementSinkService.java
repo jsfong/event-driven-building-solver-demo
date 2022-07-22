@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.service;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ * 
  */
 
 import com.fasterxml.jackson.core.JsonProcessingException;

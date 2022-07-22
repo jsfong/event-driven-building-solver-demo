@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.repository;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ * 
  */
 
 import java.util.List;

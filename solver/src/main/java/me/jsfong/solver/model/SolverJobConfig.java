@@ -1,4 +1,4 @@
-package me.jsfong.modelruntime.model;
+package me.jsfong.solver.model;
 /*
  * 
  */
