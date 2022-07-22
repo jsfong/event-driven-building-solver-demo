@@ -9,14 +9,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SolverInputProducer {
+public class SolverJobConfigProducer {
 
   private KafkaTemplate<String, String> kafkaTemplate;
   @Value("${kafka.solver-input-topic}")
   private String SOLVER_INPUT_TOPIC;
 
   @Autowired
-  public SolverInputProducer(KafkaTemplate<String, String> kafkaTemplate) {
+  public SolverJobConfigProducer(KafkaTemplate<String, String> kafkaTemplate) {
     this.kafkaTemplate = kafkaTemplate;
   }
 

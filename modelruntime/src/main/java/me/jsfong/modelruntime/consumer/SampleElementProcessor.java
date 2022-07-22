@@ -4,7 +4,7 @@ package me.jsfong.modelruntime.consumer;
  */
 
 import lombok.extern.slf4j.Slf4j;
-import me.jsfong.modelruntime.producer.SolverInputProducer;
+import me.jsfong.modelruntime.producer.SolverJobConfigProducer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class SampleElementProcessor implements ElementListener {
 
-  private SolverInputProducer solverInputProducer;
+  private SolverJobConfigProducer solverJobConfigProducer;
 
-  private ElementStreamPublisher elementStreamPublisher;
+  private ElementConsumer elementConsumer;
 
   @Autowired
-  public SampleElementProcessor(SolverInputProducer solverInputProducer, ElementStreamPublisher elementStreamPublisher) {
-    this.solverInputProducer = solverInputProducer;
-    this.elementStreamPublisher = elementStreamPublisher;
+  public SampleElementProcessor(SolverJobConfigProducer solverJobConfigProducer, ElementConsumer elementConsumer) {
+    this.solverJobConfigProducer = solverJobConfigProducer;
+    this.elementConsumer = elementConsumer;
 //    this.elementStreamPublisher.subscribe(this);
   }
 
@@ -34,6 +34,6 @@ public class SampleElementProcessor implements ElementListener {
     value += "_P";
 
     log.info("ElementProcessor - republish to solver-input");
-    solverInputProducer.sendMessage(value);
+    solverJobConfigProducer.sendMessage(value);
   }
 }

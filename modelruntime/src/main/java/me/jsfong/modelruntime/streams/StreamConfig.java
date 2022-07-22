@@ -1,4 +1,4 @@
-package me.jsfong.modelruntime.config;
+package me.jsfong.modelruntime.streams;
 /*
  *
  */

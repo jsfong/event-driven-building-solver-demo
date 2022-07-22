@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ElementStreamPublisher {
+public class ElementConsumer {
 
   private List<ElementListener> listeners = new ArrayList<>();
 

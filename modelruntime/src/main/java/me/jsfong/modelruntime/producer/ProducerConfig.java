@@ -1,6 +1,6 @@
-package me.jsfong.modelruntime.config;
+package me.jsfong.modelruntime.producer;
 /*
- * 
+ *
  */
 
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import static org.apache.kafka.clients.producer.ProducerConfig.*;
 
 @Configuration
 public class ProducerConfig {
@@ -22,9 +23,15 @@ public class ProducerConfig {
   @Bean
   public ProducerFactory<String, String> producerFactory() {
     Map<String, Object> configProps = new HashMap<>();
-    configProps.put(org.apache.kafka.clients.producer.ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOT_STRAP_SERVERS);
-    configProps.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-    configProps.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    configProps.put(BOOTSTRAP_SERVERS_CONFIG, BOOT_STRAP_SERVERS);
+    configProps.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    // producer acks
+    configProps.put(ACKS_CONFIG,"all");
+//    configProps.put(RETRIES_CONFIG, 3);
+    configProps.put(LINGER_MS_CONFIG, "1");
+    configProps.put(ENABLE_IDEMPOTENCE_CONFIG, "true");  // ensure we don't push duplicates
+
     return new DefaultKafkaProducerFactory<>(configProps);
   }
 
