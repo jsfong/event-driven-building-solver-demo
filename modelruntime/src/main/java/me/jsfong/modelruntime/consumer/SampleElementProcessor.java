@@ -21,7 +21,7 @@ public class SampleElementProcessor implements ElementListener {
   public SampleElementProcessor(SolverInputProducer solverInputProducer, ElementStreamPublisher elementStreamPublisher) {
     this.solverInputProducer = solverInputProducer;
     this.elementStreamPublisher = elementStreamPublisher;
-    this.elementStreamPublisher.subscribe(this);
+//    this.elementStreamPublisher.subscribe(this);
   }
 
   @Override

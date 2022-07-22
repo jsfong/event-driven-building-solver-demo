@@ -11,5 +11,11 @@ public interface ElementGraphService {
 
   List<Element> getAllServices();
 
+  List<ElementDTO> getAllElementsByModelId(String modelId);
+
+  Element getElementByElementId(String elementId);
+
   Element createNewElement (ElementDTO element);
+
+    void deleteAll();
 }

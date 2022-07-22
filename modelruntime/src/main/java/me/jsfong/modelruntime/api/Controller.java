@@ -6,6 +6,7 @@ package me.jsfong.modelruntime.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import me.jsfong.modelruntime.model.Element;
@@ -20,6 +21,7 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,21 +54,18 @@ public class Controller {
    * @param elementDTO
    */
   @PostMapping("/stream/element")
-  public void addElementToElementStream(@RequestBody ElementDTO elementDTO)
+  public ResponseEntity<ElementDTO> addElementToElementStream(@RequestBody ElementDTO elementDTO)
       throws JsonProcessingException {
 
-    //TODO to refactor
-    ElementDTO newElement = new ElementDTO();
-    newElement.setElementId(elementDTO.getElementId());
-    newElement.setModelId(elementDTO.getModelId());
-    newElement.setParentElementId(elementDTO.getParentElementId());
-
+    ElementDTO newElement = elementDTO.clone();
     if(StringUtils.isBlank(elementDTO.getElementId())){
       newElement.setElementId(UUID.randomUUID().toString());
     }
 
     ObjectMapper om = new ObjectMapper();
     elementInputProducer.sendMessage(om.writeValueAsString(newElement));
+
+    return new ResponseEntity(newElement, HttpStatus.CREATED);
   }
 
   /**
@@ -80,4 +79,15 @@ public class Controller {
     return new ResponseEntity(newElement, HttpStatus.CREATED);
   }
 
+  @GetMapping("/stream/element/{modelId}")
+  public ResponseEntity<List<ElementDTO>> getAllElementsByModelId(@PathVariable String modelId){
+    var elements = elementGraphService.getAllElementsByModelId(modelId);
+    return new ResponseEntity(elements, HttpStatus.CREATED);
+  }
+
+  @DeleteMapping("/stream/element")
+  public ResponseEntity<ElementDTO> deleteAll(){
+    elementGraphService.deleteAll();
+    return new ResponseEntity(null, HttpStatus.OK);
+  }
 }
