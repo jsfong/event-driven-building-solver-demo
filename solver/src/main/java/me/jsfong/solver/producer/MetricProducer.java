@@ -1,6 +1,6 @@
 package me.jsfong.solver.producer;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ * 
  */
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ public class MetricProducer {
 
   private KafkaTemplate<String, String> kafkaTemplate;
 
-  @Value(value = "${kafka.solver-metrics-topic}")
+  @Value(value = "${kafka.solver-metrics-event-topic}")
   private String METRICS_TOPIC;
 
   @Autowired

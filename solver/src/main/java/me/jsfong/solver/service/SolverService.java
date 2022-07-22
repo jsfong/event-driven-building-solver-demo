@@ -5,6 +5,7 @@ package me.jsfong.solver.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import me.jsfong.solver.producer.MetricProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,7 +35,8 @@ public class SolverService implements ConsumerListener {
 
   private final MetricProducer metricProducer;
 
-  private final int STIMULATE_PROCESSING_TIME_MS = 5000;
+  @Value(value = "${solver.stimulate-solving-time}")
+  private  int STIMULATE_PROCESSING_TIME_MS;
 
   @Autowired
   public SolverService(SolverJobConsumer solverJobConsumer, ElementProducer elementProducer,
@@ -63,8 +66,13 @@ public class SolverService implements ConsumerListener {
       var metric = SolverMetricDTO.builder()
           .modelId(solverJobConfigDTO.getModelId())
           .solverType(solverJobConfigDTO.getType())
-          .status(EventStatus.SOLVING).build();
+          .status(EventStatus.SOLVING)
+          .timeStamp(Instant.now().toString())
+          .build();
       metricProducer.sendMessage(om.writeValueAsString(metric));
+
+      log.info("SolverService - [{}] Stimulated Start solving at {} ",
+          solverJobConfigDTO.getType().toString(), Instant.now().toString());
 
 
       //Solving
@@ -75,14 +83,16 @@ public class SolverService implements ConsumerListener {
             solverJobConfigDTO.getType().toString(), end - System.currentTimeMillis());
         Thread.sleep(STIMULATE_PROCESSING_TIME_MS / 10);
       }
-      log.info("SolverService - [{}] Stimulated DONE solving ",
-          solverJobConfigDTO.getType().toString());
+      log.info("SolverService - [{}] Stimulated DONE solving at {} ",
+          solverJobConfigDTO.getType().toString(), Instant.now().toString());
 
       //Send metric
       metric = SolverMetricDTO.builder()
           .modelId(solverJobConfigDTO.getModelId())
           .solverType(solverJobConfigDTO.getType())
-          .status(EventStatus.DONE).build();
+          .status(EventStatus.DONE)
+          .timeStamp(Instant.now().toString())
+          .build();
       metricProducer.sendMessage(om.writeValueAsString(metric));
 
       //Generate output
