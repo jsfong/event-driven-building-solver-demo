@@ -4,11 +4,14 @@ package me.jsfong.modelruntime.service;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import me.jsfong.modelruntime.model.Element;
 import me.jsfong.modelruntime.model.ElementDTO;
 import me.jsfong.modelruntime.repository.ElementRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,16 +37,65 @@ public class ElementGraphServiceImpl implements ElementGraphService {
   }
 
   @Override
+  public List<ElementDTO> getAllElementsByModelId(String modelId) {
+    log.info("ElementGraphService - getAllElementsByModelId");
+
+    if (StringUtils.isBlank(modelId)) {
+      return Collections.emptyList();
+    }
+
+    List<Element> elementByModelId = elementRepository.findElementByModelId(modelId);
+    return elementByModelId.stream().map(Element::toElementDTO).collect(Collectors.toList());
+
+  }
+
+  @Override
+  public Element getElementByElementId(String elementId) {
+    log.info("ElementGraphService - getElementByElementId");
+    return elementRepository.findElementByElementId(elementId);
+  }
+
+  @Override
   public Element createNewElement(ElementDTO elementDTO) {
     log.info("ElementGraphService - creatNewElement");
-    Element element = new Element();
-    element.setModelId(elementDTO.getModelId());
+    Element element = elementDTO.toElement();
+    Element currElement = elementRepository.save(element);
 
-    Element newElement = elementRepository.save(element);
+    log.info("ElementGraphService - successfully save");
 
-    if(elementDTO.getParentId() != null){
-      elementRepository.createHasChildRelationship(elementDTO.getParentId(), newElement.getId());
+    List<String> parentElementId = elementDTO.getParentElementId();
+    if (parentElementId != null && !parentElementId.isEmpty()) {
+      log.info("ElementGraphService - constructing parent id");
+      parentElementId.forEach(
+          parentId -> {
+            //Find parent and create relationship
+            elementRepository.createHasChildRelationship(parentId, currElement.getElementId());
+
+            //TODO Update parent's child
+          });
+
+
     }
-    return null;
+
+    List<String> childElementId = elementDTO.getChildElementId();
+    if (childElementId != null && !childElementId.isEmpty()) {
+      log.info("ElementGraphService - constructing child id");
+      childElementId.forEach(
+          childId -> {
+            //Create relationship to child
+            elementRepository.createHasChildRelationship(currElement.getElementId(),
+                childId);
+
+            //TODO Update parent's child
+          });
+    }
+
+    return currElement;
+  }
+
+  @Override
+  public void deleteAll() {
+    log.info("ElementGraphService - deleteAll");
+    elementRepository.deleteAll();
   }
 }

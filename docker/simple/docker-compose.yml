@@ -43,7 +43,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   neo4j:
-    image: neo4j:latest
+    image: neo4j:community
     container_name: neo4j
     ports:
       - "7474:7474"
@@ -56,6 +56,7 @@ services:
       NEO4JLABS_PLUGINS: '["apoc"]'
     volumes:
       - ./neo4j-init-files:/var/lib/neo4j/conf
+      - ./neo4j/data:/data
   
   # # Only view, unable to add message
   # kafdrop:
