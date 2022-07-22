@@ -23,10 +23,12 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Profile("learn-stream")
 public class metricsAggregationStream {
 
   @Value("${kafka.solver-metrics-event-topic}")
@@ -37,6 +39,7 @@ public class metricsAggregationStream {
 
   @Autowired
   @Qualifier(StreamConfig.STEAMS_BUILDER)
+
   void buildPipeline(StreamsBuilder streamsBuilder) {
 
     log.info("ElementAggregatorStream - building pipeline");
@@ -84,6 +87,7 @@ public class metricsAggregationStream {
     }
 
   }
+
 
 
   private static SolverMetricSummaryDTO newAgg(String key, SolverMetricDTO dto,
