@@ -58,7 +58,12 @@ public class Controller {
   public ResponseEntity<ElementDTO> addElementToElementStream(@RequestBody ElementDTO elementDTO)
       throws JsonProcessingException {
 
-    ElementDTO newElement = elementDTO.clone();
+
+    ElementDTO newElement = new ElementDTO();
+    newElement.setModelId(elementDTO.getModelId());
+    newElement.setType(elementDTO.getType());
+    newElement.setValues(elementDTO.getValues());
+
     if (StringUtils.isBlank(elementDTO.getElementId())) {
       newElement.setElementId(UUID.randomUUID().toString());
     }

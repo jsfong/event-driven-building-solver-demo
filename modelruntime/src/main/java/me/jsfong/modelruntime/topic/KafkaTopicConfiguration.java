@@ -1,4 +1,4 @@
-package me.jsfong.modelruntime.producer;
+package me.jsfong.modelruntime.topic;
 /*
  *
  */
@@ -25,6 +25,9 @@ public class KafkaTopicConfiguration {
   @Value("${kafka.solver-input-topic.partition}")
   private int SOLVER_INPUT_TOPIC_PARTITION;
 
+  @Value("${kafka.aggerated-room-topic}")
+  private String AGG_ROOM_TOPIC;
+
   @Bean
   public NewTopic solverJobInput() {
     return TopicBuilder.name(SOLVER_INPUT_TOPIC)
@@ -34,11 +37,19 @@ public class KafkaTopicConfiguration {
 
   }
 
-
   @Bean
   public NewTopic elementInput() {
     return TopicBuilder.name(ELEMENT_INPUT_TOPIC)
         .partitions(ELEMENT_INPUT_TOPIC_PARTITION)
+        .replicas(1)
+        .build();
+
+  }
+
+  @Bean
+  public NewTopic roomInput() {
+    return TopicBuilder.name(AGG_ROOM_TOPIC)
+        .partitions(1)
         .replicas(1)
         .build();
 

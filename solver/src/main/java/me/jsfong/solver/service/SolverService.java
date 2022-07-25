@@ -120,9 +120,12 @@ public class SolverService implements ConsumerListener {
     //INPUT -> SITE -> BUILDING -> LEVEL -> ROOM -> AREA
     switch (dto.getType()) {
       case LEVEL:
+        elementDTOS.add(createElementDTO(dto, "level 1"));
+        elementDTOS.add(createElementDTO(dto, "level 2"));
+        break;
       case ROOM:
-        elementDTOS.add(createElementDTO(dto));
-        elementDTOS.add(createElementDTO(dto));
+        elementDTOS.add(createElementDTO(dto, "room 1"));
+        elementDTOS.add(createElementDTO(dto, "room 2"));
         break;
 
       default:
@@ -140,13 +143,34 @@ public class SolverService implements ConsumerListener {
       watermark = jobConfig.getModelId();
     }
 
+    var elementId = UUID.randomUUID().toString();
+
     return ElementDTO.builder()
-        .elementId(UUID.randomUUID().toString())
+        .elementId(elementId)
         .modelId(jobConfig.getModelId())
         .parentElementId(List.of(jobConfig.getCauseByElementId()))
         .type(jobConfig.getType())
-        .watermarks(watermark + "|" + jobConfig.getType().toString())
+        .watermarks(watermark + "|" + jobConfig.getType().toString() + ":"+ elementId)
         .values(jobConfig.getType().toString() + " value")
+        .build();
+  }
+
+  private ElementDTO createElementDTO(SolverJobConfigDTO jobConfig, String msg) {
+
+    String watermark = jobConfig.getWatermark();
+    if (StringUtils.isBlank(watermark)) {
+      watermark = jobConfig.getModelId();
+    }
+
+    var elementId = UUID.randomUUID().toString();
+
+    return ElementDTO.builder()
+        .elementId(elementId)
+        .modelId(jobConfig.getModelId())
+        .parentElementId(List.of(jobConfig.getCauseByElementId()))
+        .type(jobConfig.getType())
+        .watermarks(watermark + "|" + jobConfig.getType().toString() + ":"+ elementId)
+        .values(msg)
         .build();
   }
 }
