@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.KafkaStreamsConfiguration;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
@@ -24,6 +25,7 @@ public class StreamConfig {
   public static final String WORD_COUNT_STEAMS_BUILDER = "wordCountStreamBuilder";
 
   @Bean(name = WORD_COUNT_STEAMS_BUILDER)
+  @Profile("learn-stream")
   public StreamsBuilderFactoryBean wordCountStreamBuilder() {
     var streamConfig = new KafkaStreamsConfiguration(Map.of(
         StreamsConfig.APPLICATION_ID_CONFIG, APP_ID,

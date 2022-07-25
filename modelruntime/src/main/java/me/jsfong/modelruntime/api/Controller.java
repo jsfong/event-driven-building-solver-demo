@@ -32,25 +32,26 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class Controller {
 
-  private final StreamsBuilderFactoryBean factoryBean;
-
   private final ElementInputProducer elementInputProducer;
 
   private final ElementGraphService elementGraphService;
 
-  @GetMapping("/count/{word}")
-  public Long getWordCount(@PathVariable String word) {
-    KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
+  //  private final StreamsBuilderFactoryBean factoryBean;
 
-    ReadOnlyKeyValueStore<String, Long> counts = kafkaStreams.store(
-        StoreQueryParameters.fromNameAndType("counts",
-            QueryableStoreTypes.keyValueStore()));
-
-    return counts.get(word);
-  }
+//  @GetMapping("/count/{word}")
+//  public Long getWordCount(@PathVariable String word) {
+//    KafkaStreams kafkaStreams = factoryBean.getKafkaStreams();
+//
+//    ReadOnlyKeyValueStore<String, Long> counts = kafkaStreams.store(
+//        StoreQueryParameters.fromNameAndType("counts",
+//            QueryableStoreTypes.keyValueStore()));
+//
+//    return counts.get(word);
+//  }
 
   /**
    * Create element to element stream
+   *
    * @param elementDTO
    */
   @PostMapping("/stream/element")
@@ -58,35 +59,37 @@ public class Controller {
       throws JsonProcessingException {
 
     ElementDTO newElement = elementDTO.clone();
-    if(StringUtils.isBlank(elementDTO.getElementId())){
+    if (StringUtils.isBlank(elementDTO.getElementId())) {
       newElement.setElementId(UUID.randomUUID().toString());
     }
 
     ObjectMapper om = new ObjectMapper();
-    elementInputProducer.sendMessage(om.writeValueAsString(newElement));
+    elementInputProducer.sendMessageWithKey(newElement.getModelId(),
+        om.writeValueAsString(newElement));
 
     return new ResponseEntity(newElement, HttpStatus.CREATED);
   }
 
   /**
    * Create directly to graph
+   *
    * @param elementDTO
    * @return
    */
   @PostMapping("/graph/element")
-  public ResponseEntity<ElementDTO> addElementToGraph(@RequestBody ElementDTO elementDTO){
+  public ResponseEntity<ElementDTO> addElementToGraph(@RequestBody ElementDTO elementDTO) {
     Element newElement = elementGraphService.createNewElement(elementDTO);
     return new ResponseEntity(newElement, HttpStatus.CREATED);
   }
 
   @GetMapping("/stream/element/{modelId}")
-  public ResponseEntity<List<ElementDTO>> getAllElementsByModelId(@PathVariable String modelId){
+  public ResponseEntity<List<ElementDTO>> getAllElementsByModelId(@PathVariable String modelId) {
     var elements = elementGraphService.getAllElementsByModelId(modelId);
     return new ResponseEntity(elements, HttpStatus.CREATED);
   }
 
   @DeleteMapping("/stream/element")
-  public ResponseEntity<ElementDTO> deleteAll(){
+  public ResponseEntity<ElementDTO> deleteAll() {
     elementGraphService.deleteAll();
     return new ResponseEntity(null, HttpStatus.OK);
   }

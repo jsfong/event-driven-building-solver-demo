@@ -101,7 +101,7 @@ public class SolverService implements ConsumerListener {
 
       //Publish to stream
       for (ElementDTO dto : elementDTOS) {
-        elementProducer.sendMessage(om.writeValueAsString(dto));
+        elementProducer.sendMessageWithKey(dto.getModelId(), om.writeValueAsString(dto));
       }
 
     } catch (JsonProcessingException e) {

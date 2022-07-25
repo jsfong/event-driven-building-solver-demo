@@ -16,10 +16,12 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Profile("learn-stream")
 public class WordCountStream {
 
   @Value("${kafka.element-input-topic}")
@@ -27,6 +29,7 @@ public class WordCountStream {
 
   @Autowired
   @Qualifier(StreamConfig.WORD_COUNT_STEAMS_BUILDER)
+  @Profile("learn-stream")
   void buildPipeline(StreamsBuilder streamsBuilder) {
 
     log.info("ElementAggregatorStream - building pipeline");
