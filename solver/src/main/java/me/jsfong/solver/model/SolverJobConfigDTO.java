@@ -1,4 +1,4 @@
-package me.jsfong.modelruntime.model;
+package me.jsfong.solver.model;
 /*
  * 
  */
@@ -16,7 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SolverJobConfigDTO {
-
   @Builder.Default
   private String configId = "";
 
@@ -46,5 +45,4 @@ public class SolverJobConfigDTO {
         .causeByElementId(this.causeByElementId)
         .values(this.values).build();
   }
-
 }

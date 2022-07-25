@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.service;
 /*
- * Copyright(c) Lendlease Corporation, all rights reserved
+ * 
  */
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -51,15 +51,14 @@ public class WorkflowService implements ElementListener {
 
       //Generate config
       var solverJobConfigDTOS = generateSolverJobConfig(elementDTO);
-      solverJobConfigDTOS.forEach(dto -> {
-        log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
-      });
 
       //Publish to stream
-      log.info("solverTriggerWorkflow - publishing config to stream");
-      String msg = om.writeValueAsString(solverJobConfigDTOS);
-      solverJobConfigProducer.sendMessage(msg);
-
+      for(SolverJobConfigDTO dto: solverJobConfigDTOS){
+        log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
+        log.info("solverTriggerWorkflow - publishing config to stream");
+        String msg = om.writeValueAsString(dto);
+        solverJobConfigProducer.sendMessage(msg);
+      }
 
     } catch (JsonProcessingException e) {
       log.info("solverTriggerWorkflow - unable to parse");
@@ -75,16 +74,16 @@ public class WorkflowService implements ElementListener {
     //INPUT -> SITE -> BUILDING -> LEVEL -> ROOM -> AREA
     switch (dto.getType()) {
       case INPUT:
-        solverJobConfigs.add(createConfig(ElementType.SITE, dto.getElementId()));
+        solverJobConfigs.add(createConfig(ElementType.SITE, dto));
         break;
       case SITE:
-        solverJobConfigs.add(createConfig(ElementType.BUILDING, dto.getElementId()));
+        solverJobConfigs.add(createConfig(ElementType.BUILDING, dto));
+        break;
       case BUILDING:
-        solverJobConfigs.add(createConfig(ElementType.ROOM, dto.getElementId(), "1"));
-        solverJobConfigs.add(createConfig(ElementType.ROOM, dto.getElementId(), "2"));
+        solverJobConfigs.add(createConfig(ElementType.LEVEL, dto));
+        break;
       case LEVEL:
-        solverJobConfigs.add(createConfig(ElementType.ROOM, dto.getElementId(), "1"));
-        solverJobConfigs.add(createConfig(ElementType.ROOM, dto.getElementId(), "2"));
+        solverJobConfigs.add(createConfig(ElementType.ROOM, dto));
         break;
 
       default:
@@ -93,20 +92,28 @@ public class WorkflowService implements ElementListener {
 
     return solverJobConfigs;
   }
+  private SolverJobConfigDTO createConfig(ElementType type, ElementDTO dto){
 
-  private SolverJobConfigDTO createConfig(ElementType type, String elementId) {
-    return new SolverJobConfigDTO(
-        UUID.randomUUID().toString(),
-        type,
-        elementId,
-        type.toString() + " 1");
+    return SolverJobConfigDTO.builder()
+        .configId(UUID.randomUUID().toString())
+        .type(type)
+        .causeByElementId(dto.getElementId())
+        .modelId(dto.getModelId())
+        .watermark(dto.getWatermarks())
+        .values(dto.getType().toString() + " 1")
+        .build();
   }
 
-  private SolverJobConfigDTO createConfig(ElementType type, String elementId, String msg) {
-    return new SolverJobConfigDTO(
-        UUID.randomUUID().toString(),
-        type,
-        elementId,
-        type.toString() + msg);
+  private SolverJobConfigDTO createConfig(ElementType type,ElementDTO dto, String msg){
+
+    return SolverJobConfigDTO.builder()
+        .configId(UUID.randomUUID().toString())
+        .type(type)
+        .causeByElementId(dto.getElementId())
+        .modelId(dto.getModelId())
+        .watermark(dto.getWatermarks())
+        .values(dto.getType().toString() + " " + msg)
+        .build();
   }
+
 }
