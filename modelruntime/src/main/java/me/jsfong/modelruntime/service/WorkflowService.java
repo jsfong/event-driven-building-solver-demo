@@ -8,13 +8,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import me.jsfong.modelruntime.consumer.ElementListener;
 import me.jsfong.modelruntime.consumer.ElementConsumer;
+import me.jsfong.modelruntime.consumer.RoomsConsumer;
+import me.jsfong.modelruntime.model.ElementAggregationDTO;
 import me.jsfong.modelruntime.model.ElementDTO;
 import me.jsfong.modelruntime.model.ElementType;
 import me.jsfong.modelruntime.model.SolverJobConfigDTO;
 import me.jsfong.modelruntime.producer.SolverJobConfigProducer;
+import net.minidev.json.JSONArray;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.stereotype.Service;
 
@@ -24,36 +28,71 @@ public class WorkflowService implements ElementListener {
 
   private ElementConsumer elementConsumer;
 
+  private RoomsConsumer roomsConsumer;
+
   private SolverJobConfigProducer solverJobConfigProducer;
 
   public WorkflowService(ElementConsumer elementConsumer,
-      SolverJobConfigProducer solverJobConfigProducer) {
+      RoomsConsumer roomsConsumer, SolverJobConfigProducer solverJobConfigProducer) {
     this.elementConsumer = elementConsumer;
+    this.roomsConsumer = roomsConsumer;
     this.solverJobConfigProducer = solverJobConfigProducer;
     this.elementConsumer.subscribe(this);
+    this.roomsConsumer.subscribe(this);
   }
 
   @Override
-  public void update(ConsumerRecord record) {
-    solverTriggerWorkflow(record);
+  public void update(String consumerName, ConsumerRecord record) {
+
+    solverTriggerWorkflow(consumerName, record);
   }
 
-  private void solverTriggerWorkflow(ConsumerRecord record) {
+  private void solverTriggerWorkflow(String consumerName, ConsumerRecord record) {
 
     String value = (String) record.value();
     log.info("solverTriggerWorkflow - received value: {}", value);
 
     //Deserialize to DTO
-    ElementDTO elementDTO = null;
     try {
       ObjectMapper om = new ObjectMapper();
-      elementDTO = om.readValue(value, ElementDTO.class);
+      var solverJobConfigDTOS = new ArrayList<SolverJobConfigDTO>();
 
       //Generate config
-      var solverJobConfigDTOS = generateSolverJobConfig(elementDTO);
 
-      //Publish to stream
-      for(SolverJobConfigDTO dto: solverJobConfigDTOS){
+      //Element
+      if(consumerName.equals(ElementConsumer.class.getName())){
+        var elementDTO = om.readValue(value, ElementDTO.class);
+        solverJobConfigDTOS.addAll(generateSolverJobConfig(elementDTO));
+
+        for(SolverJobConfigDTO dto: solverJobConfigDTOS){
+
+          //Publish to stream
+          log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
+          log.info("solverTriggerWorkflow - publishing config to stream");
+          String msg = om.writeValueAsString(dto);
+          solverJobConfigProducer.sendMessage(msg);
+        }
+      }
+
+      //Aggregation of element
+      if(consumerName.equals(RoomsConsumer.class.getName())){
+        var elementDTO = om.readValue(value, ElementAggregationDTO.class);
+
+        var elements = new ArrayList<>(elementDTO.getElementDTOS());
+        var elementIds = elementDTO.getElementDTOS().stream().map(ElementDTO::getElementId)
+            .collect(Collectors.toList());
+
+        //ROOM
+        SolverJobConfigDTO dto = SolverJobConfigDTO.builder()
+            .configId(UUID.randomUUID().toString())
+            .type(ElementType.AREA)
+            .causeByElementId(elementIds)
+            .modelId(elementDTO.getModelId())
+            .watermark(" ROOMS")
+            .values(JSONArray.toJSONString(elements))
+            .build();
+
+        //Publish to stream
         log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
         log.info("solverTriggerWorkflow - publishing config to stream");
         String msg = om.writeValueAsString(dto);
@@ -97,7 +136,7 @@ public class WorkflowService implements ElementListener {
     return SolverJobConfigDTO.builder()
         .configId(UUID.randomUUID().toString())
         .type(type)
-        .causeByElementId(dto.getElementId())
+        .causeByElementId(List.of(dto.getElementId()))
         .modelId(dto.getModelId())
         .watermark(dto.getWatermarks())
         .values(dto.getType().toString() + " 1")
@@ -109,7 +148,7 @@ public class WorkflowService implements ElementListener {
     return SolverJobConfigDTO.builder()
         .configId(UUID.randomUUID().toString())
         .type(type)
-        .causeByElementId(dto.getElementId())
+        .causeByElementId(List.of(dto.getElementId()))
         .modelId(dto.getModelId())
         .watermark(dto.getWatermarks())
         .values(dto.getType().toString() + " " + msg)

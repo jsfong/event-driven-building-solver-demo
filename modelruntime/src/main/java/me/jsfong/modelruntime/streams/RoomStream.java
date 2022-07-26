@@ -58,7 +58,6 @@ public class RoomStream {
         dtosJsonDeserializer);
 
 
-
     try {
       //Get Stream
       var roomStream = streamsBuilder.stream(FROM_TOPIC,

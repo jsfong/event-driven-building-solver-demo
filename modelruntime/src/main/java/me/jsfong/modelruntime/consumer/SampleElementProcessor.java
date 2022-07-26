@@ -25,7 +25,7 @@ public class SampleElementProcessor implements ElementListener {
   }
 
   @Override
-  public void update(ConsumerRecord record) {
+  public void update(String consumerName, ConsumerRecord record) {
 
     String value = (String) record.value();
     log.info("ElementProcessor - received value: {}", value);

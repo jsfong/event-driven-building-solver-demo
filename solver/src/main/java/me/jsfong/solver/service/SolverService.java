@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import me.jsfong.solver.model.SolverMetricDTO;
 import me.jsfong.solver.model.SolverMetricDTO.SolverMetricDTOBuilder;
 import me.jsfong.solver.producer.ElementProducer;
 import me.jsfong.solver.producer.MetricProducer;
+import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +114,8 @@ public class SolverService implements ConsumerListener {
   }
 
 
-  private List<ElementDTO> processAndOutputSolverResult(SolverJobConfigDTO dto) {
+  private List<ElementDTO> processAndOutputSolverResult(SolverJobConfigDTO dto)
+      throws JsonProcessingException {
     log.info("SolverService - processAndOutputSolverResult");
 
     ArrayList<ElementDTO> elementDTOS = new ArrayList<>();
@@ -128,6 +131,16 @@ public class SolverService implements ConsumerListener {
         elementDTOS.add(createElementDTO(dto, "room 2"));
         break;
 
+      case AREA:
+
+        var jString = dto.getValues();
+        var om = new ObjectMapper();
+        var elementArray = om.readValue(jString, ElementDTO[].class);
+        var elements = Arrays.asList(elementArray);
+        var totalValue = elements.stream().map(ElementDTO::getValues)
+            .reduce("", (total, curr) -> total + " | " + curr);
+        elementDTOS.add(createElementDTO(dto, totalValue));
+        break;
       default:
         elementDTOS.add(createElementDTO(dto));
         break;
@@ -148,7 +161,7 @@ public class SolverService implements ConsumerListener {
     return ElementDTO.builder()
         .elementId(elementId)
         .modelId(jobConfig.getModelId())
-        .parentElementId(List.of(jobConfig.getCauseByElementId()))
+        .parentElementId(jobConfig.getCauseByElementId())
         .type(jobConfig.getType())
         .watermarks(watermark + "|" + jobConfig.getType().toString() + ":"+ elementId)
         .values(jobConfig.getType().toString() + " value")
@@ -167,7 +180,7 @@ public class SolverService implements ConsumerListener {
     return ElementDTO.builder()
         .elementId(elementId)
         .modelId(jobConfig.getModelId())
-        .parentElementId(List.of(jobConfig.getCauseByElementId()))
+        .parentElementId(jobConfig.getCauseByElementId())
         .type(jobConfig.getType())
         .watermarks(watermark + "|" + jobConfig.getType().toString() + ":"+ elementId)
         .values(msg)

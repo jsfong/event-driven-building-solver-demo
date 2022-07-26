@@ -64,6 +64,7 @@ public class ElementAggregationDTO {
 
     log.debug("ElementAggregationDTO - merge {}", dto.getWatermarks());
     this.elementId = UUID.randomUUID().toString();
+    this.modelId = dto.getModelId();
     this.parentElementId.addAll(dto.parentElementId);
     this.childElementId.addAll(dto.childElementId);
     this.watermarks = this.watermarks + " | " + dto.getWatermarks();
@@ -76,6 +77,7 @@ public class ElementAggregationDTO {
 
     log.debug("ElementAggregationDTO - aggregate {}", dto.getWatermarks());
     this.elementId = UUID.randomUUID().toString();
+    this.modelId = dto.getModelId();
     this.parentElementId.addAll(dto.getParentElementId());
     this.childElementId.addAll(dto.getChildElementId());
     this.watermarks = "";

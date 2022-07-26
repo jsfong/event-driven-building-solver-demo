@@ -30,7 +30,7 @@ public class ElementSinkService implements ElementListener {
   }
 
   @Override
-  public void update(ConsumerRecord record) {
+  public void update(String consumerName, ConsumerRecord record) {
     String value = (String) record.value();
     log.info("ElementSink - received value: {}", value);
 
