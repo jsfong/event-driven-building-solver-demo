@@ -4,7 +4,9 @@ package me.jsfong.modelruntime.streams;
  */
 
 import java.time.Duration;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import me.jsfong.modelruntime.model.ElementAggregationDTO;
 import me.jsfong.modelruntime.model.ElementDTO;
 import me.jsfong.modelruntime.model.ElementType;
 import me.jsfong.modelruntime.model.JsonDeserializer;
@@ -15,6 +17,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.SessionWindows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,6 +51,14 @@ public class RoomStream {
     Serde<ElementDTO> dTOSerde = Serdes.serdeFrom(dtoJsonSerializer,
         dtoJsonDeserializer);
 
+    JsonSerializer<ElementAggregationDTO> dtosJsonSerializer = new JsonSerializer<>();
+    JsonDeserializer<ElementAggregationDTO> dtosJsonDeserializer = new JsonDeserializer<>(
+        ElementAggregationDTO.class);
+    Serde<ElementAggregationDTO> dTOsSerde = Serdes.serdeFrom(dtosJsonSerializer,
+        dtosJsonDeserializer);
+
+
+
     try {
       //Get Stream
       var roomStream = streamsBuilder.stream(FROM_TOPIC,
@@ -61,18 +72,26 @@ public class RoomStream {
           .selectKey((k, v) -> getBuildingWatermark(v.getWatermarks()))
           .groupByKey(Grouped.with(Serdes.String(), dTOSerde))
           .windowedBy(SessionWindows.ofInactivityGapWithNoGrace(inactivityGap))
-          .reduce((aggV, newV) -> {
-            log.debug("Reducing: {}", aggV.getElementId());
+          .aggregate(
+              ElementAggregationDTO::new,
+              (k, v, agg) -> agg.aggregate(v),
+              (k, a, b) -> a.merge(b),
+              Materialized.with(Serdes.String(), dTOsSerde)
+          ).toStream().to(TO_TOPIC);
 
-            String values = aggV.getValues();
-            String newValue = values + "|" + newV.getValues();
-
-            ElementDTO newDto = newV.clone();
-            newDto.setValues(newValue);
-            log.debug("Reducing: {} with value {}", aggV.getElementId(), newValue);
-            return newDto;
-          })
-          .toStream().to(TO_TOPIC);
+// EXAMPLE of reduce
+//           .reduce((aggV, newV) -> {
+//            log.debug("Reducing: {}", aggV.getElementId());
+//
+//            String values = aggV.getValues();
+//            String newValue = values + "|" + newV.getValues();
+//
+//            ElementDTO newDto = newV.clone();
+//            newDto.setValues(newValue);
+//            log.debug("Reducing: {} with value {}", aggV.getElementId(), newValue);
+//            return newDto;
+//          })
+//          .toStream().to(TO_TOPIC);
 
 // Print out debug
 //          .foreach(
@@ -85,7 +104,6 @@ public class RoomStream {
     }
 
   }
-
 
   private String getBuildingWatermark(String watermark) {
 
