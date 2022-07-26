@@ -1,4 +1,5 @@
 
+
 # Event Driven Workflow Demo for building solving
 This is a demo for event driven workflow. The demo more focus on the architecture than the correctness of the domain solving.
 
@@ -44,5 +45,39 @@ Below are the main component of the current architecture:
  3. No session management implement - to support update use case (remove old elements).
 
 ## Event Driven Architecture
-![usecase1-Overview](https://user-images.githubusercontent.com/6212089/180979449-5bc66599-0ef0-403b-ac50-4fde202751f8.jpg)
 
+ - Engine / Modelruntime run as orchestrator to coordinate which element to trigger by publishing different ***solver job config*** into ***Solver Job Stream***.
+ - The reason for engine to be an orchestrator is to have more control on how to trigger. 
+	 - eg. For aggregator solver like Area Solver, engine will wait and aggregate the required element then only trigger the solver.
+ - Solver will read from ***Solver Job Stream*** and solve statelessly and publish the result as **Element** back to ***Element Stream***.
+ - Engine will read from ***Element Stream*** and route by create corresponding ***solver job config*** into ***Solver Job Stream***.
+ - ***Element Stream*** will be sink into a graph database. This will be the output to user.
+ - Engine also handle Restful API.
+
+![usecase1-Overview (1)](https://user-images.githubusercontent.com/6212089/180979669-91e46e8a-a2f2-46a0-ae53-792dd8794645.jpg)
+
+### Tech Stack for this demo
+| Component |Tech  |
+|--|--|
+| Engine | Spring boot  |
+| Graph DB| neo4j  |
+| Stream| Kafka|
+| Aggregation | Kafka Stream |
+
+### Kafka Topic
+| Topic|Remark|
+|--|--|
+|element-input|Elements stream that hold all the calculated elements|
+|solver-job-input|Contain solver job configs for corresponding solver|
+|solver-metrics| Metrics info produced by solver|
+|aggregated-room| Aggregated room collect per site|
+
+### Challenge - How to scale
+### Challenge - How to wait and aggregate elements
+
+## Setup
+## Tools
+| Tool | Source  | Remark |
+|--|--|--|
+| Kafka UI Tool | https://www.kafkatool.com/download.html  | To visualise kafka stream |
+| neo4j tool | http://localhost:7474/browser/ | To visualise Elements in graph form|
