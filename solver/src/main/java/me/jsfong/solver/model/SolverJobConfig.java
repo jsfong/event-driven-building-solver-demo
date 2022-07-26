@@ -28,7 +28,7 @@ public class SolverJobConfig {
 
   private List<String> type;
 
-  private String causeByElementId;
+  private List<String> causeByElementId;
 
   private String values;
 

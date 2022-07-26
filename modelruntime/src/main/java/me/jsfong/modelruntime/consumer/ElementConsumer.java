@@ -35,7 +35,7 @@ public class ElementConsumer {
 
 
   private void notifyListener(ConsumerRecord<String, String> record){
-    listeners.forEach(l -> l.update(record));
+    listeners.forEach(l -> l.update(this.getClass().getName(), record));
   }
 }
 

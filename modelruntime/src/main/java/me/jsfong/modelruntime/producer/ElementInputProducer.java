@@ -24,4 +24,8 @@ public class ElementInputProducer {
   public void sendMessage(String msg){
     kafkaTemplate.send(ELEMENT_INPUT_TOPIC, msg);
   }
+
+  public void sendMessageWithKey(String key, String msg){
+    kafkaTemplate.send(ELEMENT_INPUT_TOPIC, key, msg);
+  }
 }

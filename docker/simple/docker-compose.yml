@@ -33,6 +33,7 @@ services:
       - zookeeper
     ports:
       - 9092:9092
+      - 29092:29092
     container_name: sn-kafka
     environment:
       KAFKA_BROKER_ID: 1
@@ -57,6 +58,37 @@ services:
     volumes:
       - ./neo4j-init-files:/var/lib/neo4j/conf
       - ./neo4j/data:/data
+
+  modelruntime:
+    image: modelruntime:latest
+    depends_on:
+     - zookeeper
+     - kafka
+     - neo4j
+    ports:
+      - "8080"
+  
+  init-kafka:
+     image: confluentinc/cp-kafka:latest
+     depends_on:
+       - kafka
+     entrypoint: [ '/bin/sh', '-c' ]
+     command: |
+       "
+       # blocks until kafka is reachable
+       kafka-topics --bootstrap-server kafka:29092 --list 
+       echo -e 'Deleting kafka topics'
+       kafka-topics --bootstrap-server kafka:29092 --delete --topic element-input
+       kafka-topics --bootstrap-server kafka:29092 --delete --topic solver-job-input
+       kafka-topics --bootstrap-server kafka:29092 --delete --topic solver-metrics
+       echo -e 'Creating kafka topics'
+       kafka-topics --bootstrap-server kafka:29092 --create --topic element-input --partitions 2
+       kafka-topics --bootstrap-server kafka:29092 --create --topic solver-job-input --partitions 2
+       kafka-topics --bootstrap-server kafka:29092 --create --topic solver-metrics
+       echo -e 'Successfully created the following topics:'
+       kafka-topics --bootstrap-server kafka:29092 --list
+       sleep infinity
+       "
   
   # # Only view, unable to add message
   # kafdrop:

@@ -3,6 +3,7 @@ package me.jsfong.modelruntime.model;
  * 
  */
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ public class SolverJobConfigDTO {
   private ElementType type =  ElementType.INPUT;
 
   @Builder.Default
-  private String causeByElementId = "";
+  private List<String> causeByElementId = new ArrayList<>();
 
 
   @Builder.Default

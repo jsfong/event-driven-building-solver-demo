@@ -1,8 +1,9 @@
 package me.jsfong.solver.model;
 /*
- * 
+ *
  */
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,12 +11,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SolverJobConfigDTO {
+
   @Builder.Default
   private String configId = "";
 
@@ -23,7 +26,7 @@ public class SolverJobConfigDTO {
   private ElementType type =  ElementType.INPUT;
 
   @Builder.Default
-  private String causeByElementId = "";
+  private List<String> causeByElementId = new ArrayList<>();
 
 
   @Builder.Default
@@ -45,4 +48,6 @@ public class SolverJobConfigDTO {
         .causeByElementId(this.causeByElementId)
         .values(this.values).build();
   }
+
 }
+
