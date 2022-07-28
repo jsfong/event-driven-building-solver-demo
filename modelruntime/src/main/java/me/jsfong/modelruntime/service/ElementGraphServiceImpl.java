@@ -106,4 +106,10 @@ public class ElementGraphServiceImpl implements ElementGraphService {
     log.info("ElementGraphService - deleteAll");
     elementRepository.deleteAll();
   }
+
+  @Override
+  public void deleteAllFromElement(String elementId) {
+    log.info("ElementGraphService - deleteAllFromElement");
+    elementRepository.deleteAllFromElement(elementId);
+  }
 }

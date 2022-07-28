@@ -99,6 +99,12 @@ public class Controller {
     return new ResponseEntity(null, HttpStatus.OK);
   }
 
+  @DeleteMapping("/stream/path/{elementId}")
+  public ResponseEntity<ElementDTO> deleteAllFromElement(@PathVariable String elementId) {
+    elementGraphService.deleteAllFromElement(elementId);
+    return new ResponseEntity(null, HttpStatus.OK);
+  }
+
   @GetMapping("/stream/path/{elementId}")
   public ResponseEntity<List<ElementDTO>> getAllElementsFromElementWithId(@PathVariable String elementId) {
     var elements = elementGraphService.getAllElementsFromElement(elementId);

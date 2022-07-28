@@ -4,7 +4,6 @@ package me.jsfong.modelruntime.repository;
  */
 
 import java.util.List;
-import java.util.Map;
 import me.jsfong.modelruntime.model.Element;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -50,4 +49,10 @@ public interface ElementRepository extends Neo4jRepository<Element, Long> {
       "LIMIT 100")
   List<Element> getPathToEndFromElementId(
       @Param("element_id") String element_id);
+
+
+  @Query(value = "MATCH path=((n:Element)-[r:HAS_CHILD*]->(other))\n" +
+      "where n.elementId = :#{#element_id}\n" +
+      "detach delete path")
+  void deleteAllFromElement(@Param("element_id") String element_id);
 }

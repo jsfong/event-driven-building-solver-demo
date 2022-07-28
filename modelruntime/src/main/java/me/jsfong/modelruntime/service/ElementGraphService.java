@@ -20,4 +20,6 @@ public interface ElementGraphService {
   List<ElementDTO> getAllElementsFromElement(String elementId);
 
   void deleteAll();
+
+  void deleteAllFromElement(String elementId);
 }
