@@ -98,4 +98,10 @@ public class Controller {
     elementGraphService.deleteAll();
     return new ResponseEntity(null, HttpStatus.OK);
   }
+
+  @GetMapping("/stream/path/{elementId}")
+  public ResponseEntity<List<ElementDTO>> getAllElementsFromElementWithId(@PathVariable String elementId) {
+    var elements = elementGraphService.getAllElementsFromElement(elementId);
+    return new ResponseEntity(elements, HttpStatus.OK);
+  }
 }

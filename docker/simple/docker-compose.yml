@@ -59,14 +59,14 @@ services:
       - ./neo4j-init-files:/var/lib/neo4j/conf
       - ./neo4j/data:/data
 
-  modelruntime:
-    image: modelruntime:latest
-    depends_on:
-     - zookeeper
-     - kafka
-     - neo4j
-    ports:
-      - "8080"
+  # modelruntime:
+  #   image: modelruntime:latest
+  #   depends_on:
+  #    - zookeeper
+  #    - kafka
+  #    - neo4j
+  #   ports:
+  #     - "8080"
   
   init-kafka:
      image: confluentinc/cp-kafka:latest

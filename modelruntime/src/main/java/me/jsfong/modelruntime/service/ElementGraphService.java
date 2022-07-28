@@ -17,5 +17,7 @@ public interface ElementGraphService {
 
   Element createNewElement (ElementDTO element);
 
-    void deleteAll();
+  List<ElementDTO> getAllElementsFromElement(String elementId);
+
+  void deleteAll();
 }
