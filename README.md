@@ -100,7 +100,19 @@ In Kafka, increase ***solver job stream*** partition and increase instance of so
  
 ## Challenge - Aggregation of elements
 One of the challenge in the problem statement is how to aggregation elements in parallel event driven architecture.
-In monolith design, it can be simply solve by have 
+There two kind of solvers:
+ - Normal solver - taking one input and generate one or multiple output
+ - Aggregation solver - waiting for multiple input and generate one or multiple output
+
+Below are the challenge of aggregation solver, taking example of problem statement above where **Area solver** need to wait for the 4 rooms element before it calculate the area.
+
+ 1. Every element is a output of a solver running paralleling, how to know **when** all require elements is calculated?
+ 2. Solver might generate one or multiple elements as its output depend on solver algorithm, how to know **how many** require element we are expecting?
+ 3. Aggregation solver is an **expensive** solver to run. Re-trigger aggregation solver each time the require element generated is not practical. That might other downstream solver that will run after aggregation solver. 
+
+### Session Window Approach
+![Untitled Diagram](https://user-images.githubusercontent.com/6212089/181809426-13e67b6d-acbd-4b75-bb99-28df65ac3008.jpg)
+
 
 ## Setup
 ## Tools
