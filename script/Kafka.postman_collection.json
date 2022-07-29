@@ -6,39 +6,82 @@
 	},
 	"item": [
 		{
-			"name": "Word count",
+			"name": "Get all elemet to the end",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/count/test",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"count",
-						"test"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get all element",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:8080/stream/element/1",
+					"raw": "localhost:8080/stream/path/b6a86041-f873-42a3-bb6e-dea6956e640c",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"stream",
+						"path",
+						"b6a86041-f873-42a3-bb6e-dea6956e640c"
+					],
+					"query": [
+						{
+							"key": "elementId",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get path with modelid and type",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/stream/path/11/BUILDING",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"stream",
+						"path",
+						"11",
+						"BUILDING"
+					],
+					"query": [
+						{
+							"key": "elementId",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete element",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/graph/element/4651291d-df2a-450a-b221-93e84s05244b",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"graph",
 						"element",
-						"1"
+						"4651291d-df2a-450a-b221-93e84s05244b"
+					],
+					"query": [
+						{
+							"key": "elementId",
+							"value": null,
+							"disabled": true
+						}
 					]
 				}
 			},
@@ -50,14 +93,35 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/stream/element",
+					"raw": "localhost:8080/graph/element/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"graph",
+						"element",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all element",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/stream/element/2",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
 						"stream",
-						"element"
+						"element",
+						"2"
 					]
 				}
 			},
@@ -70,7 +134,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"modelId\": \"11\",\r\n    \"type\": \"INPUT\",\r\n    \"values\": \"Test value 1\"\r\n}",
+					"raw": "{\r\n    \"modelId\": \"3\",\r\n    \"type\": \"INPUT\",\r\n    \"values\": \"INPUT\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -78,13 +142,41 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/stream/element",
+					"raw": "localhost:8080/graph/element",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"stream",
+						"graph",
+						"element"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update element",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"elementId\": \"bdc615cf-4a0a-4482-91bf-8fbe1bf3119a\",\r\n    \"values\": \"updated areaxss\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/graph/element",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"graph",
 						"element"
 					]
 				}
@@ -170,6 +262,25 @@
 					"path": [
 						"graph",
 						"element"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Word count",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/count/test",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"count",
+						"test"
 					]
 				}
 			},
