@@ -1,6 +1,6 @@
 package me.jsfong.modelruntime.service;
 /*
- * 
+ *
  */
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,16 +27,20 @@ import org.springframework.stereotype.Service;
 public class WorkflowService implements ElementListener {
 
   private ElementConsumer elementConsumer;
-
   private RoomsConsumer roomsConsumer;
-
   private SolverJobConfigProducer solverJobConfigProducer;
 
+  private ElementGraphService elementGraphService;
+
+  private ObjectMapper om = new ObjectMapper();
+
   public WorkflowService(ElementConsumer elementConsumer,
-      RoomsConsumer roomsConsumer, SolverJobConfigProducer solverJobConfigProducer) {
+      RoomsConsumer roomsConsumer, SolverJobConfigProducer solverJobConfigProducer,
+      ElementGraphService elementGraphService) {
     this.elementConsumer = elementConsumer;
     this.roomsConsumer = roomsConsumer;
     this.solverJobConfigProducer = solverJobConfigProducer;
+    this.elementGraphService = elementGraphService;
     this.elementConsumer.subscribe(this);
     this.roomsConsumer.subscribe(this);
   }
@@ -52,59 +56,82 @@ public class WorkflowService implements ElementListener {
     String value = (String) record.value();
     log.info("solverTriggerWorkflow - received value: {}", value);
 
-    //Deserialize to DTO
     try {
-      ObjectMapper om = new ObjectMapper();
-      var solverJobConfigDTOS = new ArrayList<SolverJobConfigDTO>();
-
-      //Generate config
-
-      //Element
-      if(consumerName.equals(ElementConsumer.class.getName())){
-        var elementDTO = om.readValue(value, ElementDTO.class);
-        solverJobConfigDTOS.addAll(generateSolverJobConfig(elementDTO));
-
-        for(SolverJobConfigDTO dto: solverJobConfigDTOS){
-
-          //Publish to stream
-          log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
-          log.info("solverTriggerWorkflow - publishing config to stream");
-          String msg = om.writeValueAsString(dto);
-          solverJobConfigProducer.sendMessage(msg);
-        }
+      //Normal solver
+      if (consumerName.equals(ElementConsumer.class.getName())) {
+        processNormalWorkflow(value);
       }
 
-      //Aggregation of element
-      if(consumerName.equals(RoomsConsumer.class.getName())){
-        var elementDTO = om.readValue(value, ElementAggregationDTO.class);
-
-        var elements = new ArrayList<>(elementDTO.getElementDTOS());
-        var elementIds = elementDTO.getElementDTOS().stream().map(ElementDTO::getElementId)
-            .collect(Collectors.toList());
-
-        //ROOM
-        SolverJobConfigDTO dto = SolverJobConfigDTO.builder()
-            .configId(UUID.randomUUID().toString())
-            .type(ElementType.AREA)
-            .causeByElementId(elementIds)
-            .modelId(elementDTO.getModelId())
-            .watermark(" ROOMS")
-            .values(JSONArray.toJSONString(elements))
-            .build();
-
-        //Publish to stream
-        log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
-        log.info("solverTriggerWorkflow - publishing config to stream");
-        String msg = om.writeValueAsString(dto);
-        solverJobConfigProducer.sendMessage(msg);
+      //Aggregation solver
+      if (consumerName.equals(RoomsConsumer.class.getName())) {
+        processAggregationWorkflow(value);
       }
-
     } catch (JsonProcessingException e) {
       log.info("solverTriggerWorkflow - unable to parse");
     }
 
   }
 
+  private void processNormalWorkflow(String value) throws JsonProcessingException {
+
+    var solverJobConfigDTOS = new ArrayList<SolverJobConfigDTO>();
+    var elementDTO = om.readValue(value, ElementDTO.class);
+    solverJobConfigDTOS.addAll(generateSolverJobConfig(elementDTO));
+
+    for (SolverJobConfigDTO dto : solverJobConfigDTOS) {
+      //Publish to stream
+      log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
+      log.info("solverTriggerWorkflow - publishing config to stream");
+      String msg = om.writeValueAsString(dto);
+      solverJobConfigProducer.sendMessage(msg);
+    }
+  }
+
+
+  private void processAggregationWorkflow(String value) throws JsonProcessingException {
+
+
+    //ROOM aggregation
+    var elementDTO = om.readValue(value, ElementAggregationDTO.class);
+
+    //Check if aggregation is already happened
+    //1. Identify modelId
+    var modelId = elementDTO.getModelId();
+    //2. Identify the common parent
+    var commonParent = ElementType.BUILDING;
+    //3. Get last node
+    var lastNode = elementGraphService.getLastNodeWIthModelIdAndType(
+        modelId, commonParent.toString());
+    //4. Check last node element is aggregated element type
+    var targetedAggregatedType = ElementType.AREA;
+    if(lastNode != null && lastNode.getType() == targetedAggregatedType){
+      log.info("solverTriggerWorkflow - processAggregationWorkflow: detected aggregation already done.");
+
+      //Delete aggregated result
+      elementGraphService.deleteAllFromElement(lastNode.getElementId());
+      log.info("solverTriggerWorkflow - processAggregationWorkflow: deleted aggregation result.");
+    }
+
+    log.info("solverTriggerWorkflow - processAggregationWorkflow: Complete aggregation, trigger aggregation solver.");
+    var elements = new ArrayList<>(elementDTO.getElementDTOS());
+    var elementIds = elementDTO.getElementDTOS().stream().map(ElementDTO::getElementId)
+        .collect(Collectors.toList());
+
+    SolverJobConfigDTO dto = SolverJobConfigDTO.builder()
+        .configId(UUID.randomUUID().toString())
+        .type(ElementType.AREA)
+        .causeByElementId(elementIds)
+        .modelId(elementDTO.getModelId())
+        .watermark(" ROOMS")
+        .values(JSONArray.toJSONString(elements))
+        .build();
+
+    //Publish to stream
+    log.info("solverTriggerWorkflow - generated {} config", dto.getType().toString());
+    log.info("solverTriggerWorkflow - publishing config to stream");
+    String msg = om.writeValueAsString(dto);
+    solverJobConfigProducer.sendMessage(msg);
+  }
 
   private List<SolverJobConfigDTO> generateSolverJobConfig(ElementDTO dto) {
 
@@ -131,7 +158,8 @@ public class WorkflowService implements ElementListener {
 
     return solverJobConfigs;
   }
-  private SolverJobConfigDTO createConfig(ElementType type, ElementDTO dto){
+
+  private SolverJobConfigDTO createConfig(ElementType type, ElementDTO dto) {
 
     return SolverJobConfigDTO.builder()
         .configId(UUID.randomUUID().toString())
@@ -143,7 +171,7 @@ public class WorkflowService implements ElementListener {
         .build();
   }
 
-  private SolverJobConfigDTO createConfig(ElementType type,ElementDTO dto, String msg){
+  private SolverJobConfigDTO createConfig(ElementType type, ElementDTO dto, String msg) {
 
     return SolverJobConfigDTO.builder()
         .configId(UUID.randomUUID().toString())

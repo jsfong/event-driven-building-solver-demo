@@ -30,8 +30,9 @@ public class Element {
   private Long id;
 
   @DynamicLabels
-  private List<String> type;
+  private List<String> label;
 
+  private String type;
   private String elementId;
 
   private String modelId;
@@ -60,7 +61,7 @@ public class Element {
             parentElement.stream().map(Element::getElementId).collect(Collectors.toList()))
         .childElementId(
             childElement.stream().map(Element::getElementId).collect(Collectors.toList()))
-        .type(ElementType.valueOf(this.type.get(0).toUpperCase()))
+        .type(ElementType.valueOf(this.type))
         .watermarks(this.watermarks)
         .values(this.values)
         .parentElementId(new ArrayList<>(this.parentElementId))

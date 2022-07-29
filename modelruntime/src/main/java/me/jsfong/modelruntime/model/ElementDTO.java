@@ -3,10 +3,8 @@ package me.jsfong.modelruntime.model;
  * 
  */
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -53,7 +51,8 @@ public class ElementDTO {
 
   public Element toElement() {
     return Element.builder()
-        .type(List.of(this.type.toString()))
+        .label(List.of(this.type.toString()))
+        .type(this.type.toString())
         .elementId(this.elementId)
         .modelId(this.modelId)
         .watermarks(this.watermarks)

@@ -51,6 +51,22 @@ public interface ElementRepository extends Neo4jRepository<Element, Long> {
       @Param("element_id") String element_id);
 
 
+  @Query(value = "MATCH path=((n)-[:HAS_CHILD*]->(other))\n" +
+      "where n.modelId = :#{#modelId} and n.type = :#{#type}\n" +
+      "return nodes(path)\n" +
+      "LIMIT 100")
+  List<Element> getPathToEndFromModelIdAndType(
+      @Param("modelId") String modelId,
+      @Param("type") String type);
+
+  @Query(value = "MATCH path=((n)-[:HAS_CHILD*]->(other))\n" +
+      "where n.modelId = :#{#modelId} and n.type = :#{#type}\n" +
+      "return last(nodes(path))\n" +
+      "LIMIT 1")
+  Element getLastNodeWithModelIdAndType(
+      @Param("modelId") String modelId,
+      @Param("type") String type);
+
   @Query(value = "MATCH path=((n:Element)-[r:HAS_CHILD*]->(other))\n" +
       "where n.elementId = :#{#element_id}\n" +
       "detach delete path")

@@ -110,4 +110,12 @@ public class Controller {
     var elements = elementGraphService.getAllElementsFromElement(elementId);
     return new ResponseEntity(elements, HttpStatus.OK);
   }
+
+  @GetMapping("/stream/path/{modelId}/{type}")
+  public ResponseEntity<List<ElementDTO>> getLastNodeWIthModelIdAndType(
+      @PathVariable String modelId,
+      @PathVariable String type) {
+    var elements = elementGraphService.getLastNodeWIthModelIdAndType(modelId, type);
+    return new ResponseEntity(elements, HttpStatus.OK);
+  }
 }

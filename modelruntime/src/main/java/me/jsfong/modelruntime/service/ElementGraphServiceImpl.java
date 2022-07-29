@@ -102,6 +102,20 @@ public class ElementGraphServiceImpl implements ElementGraphService {
   }
 
   @Override
+  public List<ElementDTO> getAllElementsWithModelIdAndType(String modelId, String type) {
+    log.info("ElementGraphService - getAllElementsWithModelIdAndType");
+    List<Element> elements = elementRepository.getPathToEndFromModelIdAndType(modelId, type);
+    return elements.stream().map(Element::toElementDTO).collect(Collectors.toList());
+  }
+
+  @Override
+  public ElementDTO getLastNodeWIthModelIdAndType(String modelId, String type) {
+    log.info("ElementGraphService - getLastNodeWIthModelIdAndType");
+    var element = elementRepository.getLastNodeWithModelIdAndType(modelId, type);
+    return element.toElementDTO();
+  }
+
+  @Override
   public void deleteAll() {
     log.info("ElementGraphService - deleteAll");
     elementRepository.deleteAll();

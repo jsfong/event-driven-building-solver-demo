@@ -19,6 +19,10 @@ public interface ElementGraphService {
 
   List<ElementDTO> getAllElementsFromElement(String elementId);
 
+  List<ElementDTO> getAllElementsWithModelIdAndType(String modelId, String type);
+
+  ElementDTO getLastNodeWIthModelIdAndType(String modelId, String type);
+
   void deleteAll();
 
   void deleteAllFromElement(String elementId);
