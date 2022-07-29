@@ -28,17 +28,16 @@ public class SolverJobConfigDTO {
   @Builder.Default
   private List<String> causeByElementId = new ArrayList<>();
 
-
   @Builder.Default
   private String modelId = "";
-
-
   @Builder.Default
   private String watermark = "";
 
   @Builder.Default
   private String values = "";
 
+  @Builder.Default
+  private CauseBy causeBy = CauseBy.INPUT;
   public SolverJobConfig toSolverJobConfig(){
     return SolverJobConfig.builder()
         .configId(this.configId)

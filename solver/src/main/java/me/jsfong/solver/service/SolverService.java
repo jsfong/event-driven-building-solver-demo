@@ -164,6 +164,7 @@ public class SolverService implements ConsumerListener {
         .parentElementId(jobConfig.getCauseByElementId())
         .type(jobConfig.getType())
         .watermarks(watermark + "|" + jobConfig.getType().toString() + ":"+ elementId)
+        .causeBy(jobConfig.getCauseBy())
         .values(jobConfig.getType().toString() + " value")
         .build();
   }
@@ -182,7 +183,8 @@ public class SolverService implements ConsumerListener {
         .modelId(jobConfig.getModelId())
         .parentElementId(jobConfig.getCauseByElementId())
         .type(jobConfig.getType())
-        .watermarks(watermark + "|" + jobConfig.getType().toString() + ":"+ elementId)
+        .watermarks(watermark + "|" + jobConfig.getType().toString() +  ":"+ elementId)
+        .causeBy(jobConfig.getCauseBy())
         .values(msg)
         .build();
   }

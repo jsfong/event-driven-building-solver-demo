@@ -45,6 +45,9 @@ public class ElementAggregationDTO {
   @Builder.Default
   private Set<ElementDTO> elementDTOS = new HashSet<>();
 
+  @Builder.Default
+  private CauseBy causeBy = CauseBy.INPUT;
+
   public ElementAggregationDTO clone() {
     var clonedElementDTOs = elementDTOS.stream().map(ElementDTO::clone)
         .collect(Collectors.toSet());
@@ -82,6 +85,7 @@ public class ElementAggregationDTO {
     this.childElementId.addAll(dto.getChildElementId());
     this.watermarks = "";
     this.elementDTOS.add(dto);
+    this.causeBy = dto.getCauseBy();
     return this;
   }
 

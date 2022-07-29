@@ -38,6 +38,9 @@ public class SolverJobConfigDTO {
   @Builder.Default
   private String values = "";
 
+  @Builder.Default
+  private CauseBy causeBy = CauseBy.INPUT;
+
   public SolverJobConfig toSolverJobConfig(){
     return SolverJobConfig.builder()
         .configId(this.configId)
@@ -45,7 +48,9 @@ public class SolverJobConfigDTO {
         .watermark(this.watermark)
         .type(List.of(type.toString()))
         .causeByElementId(this.causeByElementId)
-        .values(this.values).build();
+        .values(this.values)
+        .causeBy(this.causeBy)
+        .build();
   }
 
 }

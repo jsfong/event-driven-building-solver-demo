@@ -33,10 +33,10 @@ public class ElementDTO {
   private ElementType type = ElementType.INPUT;
   @Builder.Default
   private String watermarks = "";
-
   @Builder.Default
   private String values = "";
-
+  @Builder.Default
+  private CauseBy causeBy = CauseBy.INPUT;
   public ElementDTO clone() {
     return ElementDTO.builder()
         .elementId(this.elementId)
@@ -46,16 +46,19 @@ public class ElementDTO {
         .type(this.type)
         .values(this.values)
         .watermarks(this.watermarks)
+        .causeBy(this.causeBy)
         .build();
   }
 
   public Element toElement() {
     return Element.builder()
-        .type(List.of(this.type.toString()))
+        .label(List.of(this.type.toString()))
+        .type(this.type.toString())
         .elementId(this.elementId)
         .modelId(this.modelId)
         .watermarks(this.watermarks)
         .values(this.values)
+        .causeBy(this.causeBy)
         .parentElementId(new ArrayList<>(this.parentElementId))
         .childElementId(new ArrayList<>(this.childElementId))
         .build();
