@@ -30,6 +30,7 @@ public class SolverJobConfig {
 
   private List<String> causeByElementId;
 
+  private CauseBy causeBy;
   private String values;
 
 }

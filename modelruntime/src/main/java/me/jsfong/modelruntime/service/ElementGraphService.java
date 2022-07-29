@@ -15,11 +15,14 @@ public interface ElementGraphService {
 
   Element getElementByElementId(String elementId);
 
-  Element createNewElement (ElementDTO element);
+  ElementDTO createNewElement (ElementDTO element);
 
+  ElementDTO updateElement(ElementDTO elementDTO);
   List<ElementDTO> getAllElementsFromElement(String elementId);
 
   List<ElementDTO> getAllElementsWithModelIdAndType(String modelId, String type);
+
+  List<ElementDTO> getElements(String modelId, String commonParentType, String type);
 
   ElementDTO getLastNodeWIthModelIdAndType(String modelId, String type);
 

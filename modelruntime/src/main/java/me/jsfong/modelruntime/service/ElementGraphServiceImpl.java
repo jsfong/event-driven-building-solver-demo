@@ -4,12 +4,16 @@ package me.jsfong.modelruntime.service;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import me.jsfong.modelruntime.model.CauseBy;
 import me.jsfong.modelruntime.model.Element;
 import me.jsfong.modelruntime.model.ElementDTO;
+import me.jsfong.modelruntime.model.ElementType;
 import me.jsfong.modelruntime.repository.ElementRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -56,7 +60,7 @@ public class ElementGraphServiceImpl implements ElementGraphService {
   }
 
   @Override
-  public Element createNewElement(ElementDTO elementDTO) {
+  public ElementDTO createNewElement(ElementDTO elementDTO) {
     log.info("ElementGraphService - creatNewElement");
     Element element = elementDTO.toElement();
     Element currElement = elementRepository.save(element);
@@ -90,8 +94,53 @@ public class ElementGraphServiceImpl implements ElementGraphService {
           });
     }
 
-    return currElement;
+    return elementDTO;
   }
+
+  @Override
+  public ElementDTO updateElement(ElementDTO elementDTO) {
+    log.info("ElementGraphService - updateElement");
+
+    //1. Check if element exist
+    var oldElement = elementRepository.findElementByElementId(
+        elementDTO.getElementId());
+
+    if(oldElement == null){
+      log.info("ElementGraphService - updateElement. Element not found, create new");
+      return  createNewElement(elementDTO);
+    }
+
+    log.info("ElementGraphService - updateElement. Found element");
+
+    //2. Prepare the updated element
+    log.info("ElementGraphService - updateElement. Prepare the updated element");
+    var elementId = UUID.randomUUID().toString();
+    var newElement = elementDTO;
+    newElement.setElementId(elementId);
+    newElement.setModelId(oldElement.getModelId());
+    newElement.setParentElementId(oldElement.getParentElementId());
+    newElement.setChildElementId(Collections.emptyList());
+    newElement.setType(ElementType.valueOf(oldElement.getType()));
+
+    var newWatermark = Arrays.asList(oldElement.getWatermarks().split("\\|"));
+    var newWatermarkSize = newWatermark.size();
+    StringBuilder sb = new StringBuilder();
+    for(int i=0; i<newWatermarkSize - 1; i++){
+      sb.append(newWatermark.get(i));
+      sb.append("|");
+    }
+    sb.append(newElement.getType() + ":" + elementId);
+    newElement.setWatermarks(sb.toString());
+    newElement.setCauseBy(CauseBy.UPDATE);
+
+    //3. Delete old element and all the element below
+    log.info("ElementGraphService - updateElement. Deleting element {}", oldElement.getElementId());
+    elementRepository.deleteAllFromElement(oldElement.getElementId());
+
+    return newElement;
+
+  }
+
 
   @Override
   public List<ElementDTO> getAllElementsFromElement(String elementId) {
@@ -105,6 +154,13 @@ public class ElementGraphServiceImpl implements ElementGraphService {
   public List<ElementDTO> getAllElementsWithModelIdAndType(String modelId, String type) {
     log.info("ElementGraphService - getAllElementsWithModelIdAndType");
     List<Element> elements = elementRepository.getPathToEndFromModelIdAndType(modelId, type);
+    return elements.stream().map(Element::toElementDTO).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<ElementDTO> getElements(String modelId, String commonParentType, String type) {
+    log.info("ElementGraphService - getAllElementsWithModelIdAndType");
+    List<Element> elements = elementRepository.getElementByModelId_ParentType_type(modelId, commonParentType, type);
     return elements.stream().map(Element::toElementDTO).collect(Collectors.toList());
   }
 

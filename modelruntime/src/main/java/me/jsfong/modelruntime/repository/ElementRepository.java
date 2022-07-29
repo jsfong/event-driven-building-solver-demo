@@ -59,6 +59,14 @@ public interface ElementRepository extends Neo4jRepository<Element, Long> {
       @Param("modelId") String modelId,
       @Param("type") String type);
 
+  @Query(value = "MATCH (n)-[:HAS_CHILD*]->(r)\n" +
+      "where n.modelId = :#{#modelId} and r.modelId = :#{#modelId}\n" +
+      "and n.type = :#{#parentType} and r.type = :#{#type}\n" +
+      "return r")
+  List<Element> getElementByModelId_ParentType_type(
+      @Param("modelId") String modelId,
+      @Param("parentType") String parentType,
+      @Param("type") String type);
   @Query(value = "MATCH path=((n)-[:HAS_CHILD*]->(other))\n" +
       "where n.modelId = :#{#modelId} and n.type = :#{#type}\n" +
       "return last(nodes(path))\n" +
@@ -67,7 +75,7 @@ public interface ElementRepository extends Neo4jRepository<Element, Long> {
       @Param("modelId") String modelId,
       @Param("type") String type);
 
-  @Query(value = "MATCH path=((n:Element)-[r:HAS_CHILD*]->(other))\n" +
+  @Query(value = "MATCH path=((n:Element)-[r:HAS_CHILD*0..100]->())\n" +
       "where n.elementId = :#{#element_id}\n" +
       "detach delete path")
   void deleteAllFromElement(@Param("element_id") String element_id);

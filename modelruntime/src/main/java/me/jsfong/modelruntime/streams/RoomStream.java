@@ -65,7 +65,6 @@ public class RoomStream {
 
       Duration inactivityGap = Duration.ofSeconds(SESSION_TIMEOUT_SEC);
 
-      //Log Stream
       roomStream
           .filter((k, v) -> v.getType() == ElementType.ROOM)
           .selectKey((k, v) -> getBuildingWatermark(v.getWatermarks()))
@@ -91,6 +90,7 @@ public class RoomStream {
 //            return newDto;
 //          })
 //          .toStream().to(TO_TOPIC);
+
 
 // Print out debug
 //          .foreach(

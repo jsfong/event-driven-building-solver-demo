@@ -24,35 +24,26 @@ import org.springframework.data.neo4j.core.schema.Relationship.Direction;
 @Setter
 @Builder
 public class Element {
-
   @Id
   @GeneratedValue
   private Long id;
-
   @DynamicLabels
   private List<String> label;
-
   private String type;
   private String elementId;
-
   private String modelId;
-
   private String watermarks;
-
   private String values;
 
+  private CauseBy causeBy;
   @Builder.Default
   private List<String> parentElementId = new ArrayList<>();
-
   @Builder.Default
   private List<String> childElementId = new ArrayList<>();
-
   @Relationship(type = "HAS_CHILD", direction = Direction.OUTGOING)
   private Set<Element> childElement = new HashSet<>();
-
   @Relationship(type = "HAS_CHILD", direction = Direction.INCOMING)
   private Set<Element> parentElement = new HashSet<>();
-
   public ElementDTO toElementDTO() {
     return ElementDTO.builder()
         .elementId(this.elementId)
@@ -64,6 +55,7 @@ public class Element {
         .type(ElementType.valueOf(this.type))
         .watermarks(this.watermarks)
         .values(this.values)
+        .causeBy(this.causeBy)
         .parentElementId(new ArrayList<>(this.parentElementId))
         .childElementId(new ArrayList<>(this.childElementId))
         .build();
