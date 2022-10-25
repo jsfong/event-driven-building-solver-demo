@@ -172,4 +172,41 @@ Below are the challenge of aggregation solver, taking example of problem stateme
 | Kafka UI Tool | https://www.kafkatool.com/download.html  | To visualise kafka stream |
 | neo4j tool | http://localhost:7474/browser/ | To visualise Elements in graph form|
 
+# How to run the demo
 
+1. ``cd /docker/simple``
+2. exec ``docker-compose up -d``
+3. Ensure all the docker service is up
+
+```
+λ docker-compose up -d
+Creating network "simple_default" with the default driver
+Creating neo4j        ... done
+Creating sn-zookeeper ... done
+Creating sn-kafka     ... done
+Creating simple_init-kafka_1 ... done
+```
+
+4. ``cd /mondelruntime``
+5. Open the project in IDE eg Intelij & run ModelRuntimeApplication springboot application. This will start the engine.
+6. Ensure engine run without error.
+7. Open the Kafka UI Tool (Offset Explorer). Configure it to connect to local kafka. This tool can be use for checking the consumer (if data exist) and data in the stream.
+![Offset Explorer](/gif/offset_explorer_config.JPG)
+
+8. ``cd /solver``
+9. Open the project in IDE eg Intelij & run SolverApplication springboot application. This will start the demo solver.
+10. Open Postman and import the script in ``/script``
+11. Execute the Postman script ``Create element to stream``
+12. Either use the Postman script ``Get all element`` with URL ``localhost:8080/stream/element/3``
+13. Or use neo4j ``http://localhost:7474/browser/`` and execute the query below
+
+```
+//Get  model
+match (n:Element)
+where n.modelId='3'
+return n
+```
+
+14. We should able to get a graph as below (Which tally with the example above).
+
+![Sample Model](/gif/sample_model.JPG)
