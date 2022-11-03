@@ -187,7 +187,7 @@ public class WorkflowService implements ElementListener, Workflow {
         .causeByElementId(List.of(dto.getElementId()))
         .modelId(dto.getModelId())
         .watermark(dto.getWatermarks())
-        .values(dto.getType().toString() + " 1")
+        .values(dto.getValues())
         .causeBy(dto.getCauseBy())
         .build();
   }

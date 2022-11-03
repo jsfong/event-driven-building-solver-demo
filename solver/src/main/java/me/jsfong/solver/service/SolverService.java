@@ -127,8 +127,8 @@ public class SolverService implements ConsumerListener {
         elementDTOS.add(createElementDTO(dto, "level 2"));
         break;
       case ROOM:
-        elementDTOS.add(createElementDTO(dto, "room 1"));
-        elementDTOS.add(createElementDTO(dto, "room 2"));
+        elementDTOS.add(createElementDTO(dto, "room 1 from " + dto.getValues()));
+        elementDTOS.add(createElementDTO(dto, "room 2 from " + dto.getValues()));
         break;
 
       case AREA:
